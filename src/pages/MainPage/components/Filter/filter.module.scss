@@ -1,0 +1,40 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 10px;
+  height: 500px;
+  overflow-y: scroll;
+}
+
+.Title {
+  font-size: 18px;
+  padding-bottom: 10px;
+  margin: 0;
+}
+
+.Sorting {
+  &Container {
+  }
+
+  &Label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+}
+
+.Price {
+  &Container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &Label {
+    display: flex;
+    gap: 5px;
+  }
+}

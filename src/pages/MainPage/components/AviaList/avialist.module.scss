@@ -1,0 +1,21 @@
+.Container {
+  height: 500px;
+  overflow-y: scroll;
+}
+
+.List {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-bottom: 30px;
+}
+
+.Button {
+  font-size: 18px;
+  &Container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+}
