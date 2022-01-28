@@ -1,7 +1,6 @@
 import React from 'react';
 import moment from 'moment'
 import 'moment/locale/ru';
-import cn from 'classnames'
 
 import { Flights} from '../../../../data/types'
 
@@ -39,7 +38,7 @@ export const AviaItemComponent: React.FC<Flights> = (props) => {
                     </div>
                     <div className={styles.ItemFlight_Date}>
                       <div className={styles.ItemFlight_DateTime}>
-                        <span className={styles.ItemFlight_DateClock}>{moment(segment.departureDate).format('hh:mm')}</span>
+                        <span className={styles.ItemFlight_DateClock}>{moment(segment.departureDate).format('HH:mm')}</span>
                         <span className='blue'>{moment(segment.departureDate).format('DD MMM dd')}</span>
                       </div>
                       <div className={styles.ItemFlight_DateAll}>
@@ -48,7 +47,7 @@ export const AviaItemComponent: React.FC<Flights> = (props) => {
                       </div>
                       <div className={styles.ItemFlight_DateTime}>
                         <span className='blue'>{moment(segment.arrivalDate).format('DD MMM dd')}</span>
-                        <span className={styles.ItemFlight_DateClock}>{moment(segment.arrivalDate).format('hh:mm')}</span>
+                        <span className={styles.ItemFlight_DateClock}>{moment(segment.arrivalDate).format('HH:mm')}</span>
                       </div>
                     </div>
                     {
