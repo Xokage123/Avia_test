@@ -19,6 +19,7 @@ export interface Price {
 export interface Labels {
   title: string
   value: TYPE_SORTING | TYPE_FILTER | string
+  disabled?: boolean
 }
 
 export interface FilterProps {

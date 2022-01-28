@@ -13,14 +13,20 @@ export const AviaListComponent: React.FC<IProps> = (props) => {
 
   return (
     <section className={styles.Container}>
-      <ul className={styles.List}>
-        {
-          flights.map(flightInfo => {
-            const { flight, token} = flightInfo
-            return (<AviaItemComponent flight={flight} token={token} /> )
-          })
-        }
-      </ul>
+      {
+        flights.length ? (
+          <ul className={styles.List}>
+            {
+              flights.map(flightInfo => {
+                const { flight, token } = flightInfo
+                return (<AviaItemComponent flight={flight} token={token} />)
+              })
+            }
+          </ul>
+        ) : (
+          <div>По вашему запросу мы ничего не нашли!</div>
+        )
+      }
       <div className={styles.ButtonContainer}>
         <button className={styles.Button} onClick={handleShowMore}>Показать еще</button>
       </div>

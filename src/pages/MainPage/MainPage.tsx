@@ -22,13 +22,21 @@ export const MainPage = () => {
 
   const [featuredFlights, setfeaturedFlights] = React.useState(flightsAll.slice(0, numberShowFlights))
 
-  React.useEffect(() => setNumberShowFlights(numberPrewie), [flightsAll])
+  React.useEffect(() => {
+    setNumberShowFlights(numberPrewie)
+  }, [flightsAll])
 
-  const handleFilterFlights = React.useCallback((filterFlights: Flights[]) => setFlightsFilter(filterFlights), [])
+  const handleFilterFlights = React.useCallback((filterFlights: Flights[]) => {
+    setFlightsFilter(filterFlights)
+  }, [])
 
-  const handleShowMore = React.useCallback(() => setNumberShowFlights((prevValue) => prevValue + numberPrewie), [])
+  const handleShowMore = React.useCallback(() => {
+    setNumberShowFlights((prevValue) => prevValue + numberPrewie)
+  }, [])
 
-  React.useEffect(() => setfeaturedFlights(flightsFilter.slice(0, numberShowFlights)), [numberShowFlights, flightsAll, flightsFilter])
+  React.useEffect(() => {
+    setfeaturedFlights(flightsFilter.slice(0, numberShowFlights))
+  }, [numberShowFlights, flightsAll, flightsFilter])
 
   return (
     <div className={cn(styles.container, 'main-container')}>

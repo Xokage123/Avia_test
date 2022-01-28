@@ -22,61 +22,95 @@ export const FilterComponent: React.FC<Props> = (props) => {
   const [price, setPrice] = React.useState<Price>(initialPrice)
   const [company, setCompany] = React.useState<string>('')
 
+  const getMinPrice = (nameCompany: string) => {
+    const flightCompany = flights.filter(flight => flight.flight.carrier.caption === nameCompany)
+    let minPrice: null | number = null
+
+    flightCompany.forEach((flight) => {
+      const price = +flight.flight.price.total.amount
+      if (!minPrice) minPrice = price
+      else if (+flight.flight.price.total.amount < minPrice) {
+        minPrice = price
+      }
+    })
+
+    return minPrice
+  }
+
+  const handleIsDisabled = (nameCompany: string): boolean => !flights.filter(flight => flight.flight.legs.some((leg) => {
+    if (filter === TYPE_FILTER.NO_STOP) return leg.segments.some(segment => segment.stops === 0)
+    if (filter === TYPE_FILTER.STOP) return leg.segments.some(segment => segment.stops === 1)
+    return true
+  })).filter(flight => flight.flight.carrier.caption === nameCompany).length
+
   React.useEffect(() => {
     const allCompany = new Set<string>()
     const labelsCompany: Labels[] = []
     flights.forEach((flight) => allCompany.add(flight.flight.carrier.caption))
     allCompany.forEach(company => {
+      console.log(company)
       labelsCompany.push({
-        title: company,
-        value: company
+        title: `${company} (от ${getMinPrice(company)} руб.)`,
+        value: company,
+        disabled: handleIsDisabled(company)
       })
     })
     setOptionsCompany(labelsCompany)
-  }, [])
+    if (filter) return 
+    setFilter(TYPE_FILTER.NO_STOP)
+  }, [filter])
 
-  React.useEffect(() => {
-    const flightsFilterActual = flightsFilter.slice(0)
+  const getSortValue = (flights: Flights[]): Flights[]  => {
 
     if (sorting === TYPE_SORTING.UP) {
-      handleFilterFlights(flightsFilterActual.sort((flight_1: Flights, flight_2: Flights) => {
+      return flights.sort((flight_1: Flights, flight_2: Flights) => {
         if (+flight_1.flight.price.total.amount > +flight_2.flight.price.total.amount) return 1
         if (+flight_1.flight.price.total.amount < +flight_2.flight.price.total.amount) return -1
         return 0
-      }))
+      })
     }
     if (sorting === TYPE_SORTING.DOWN) {
-      handleFilterFlights(flightsFilterActual.sort((flight_1: Flights, flight_2: Flights) => {
-        if (+flight_1.flight.price.total.amount > +flight_2.flight.price.total.amount) return 1
-        if (+flight_1.flight.price.total.amount < +flight_2.flight.price.total.amount) return -1
+      return flights.sort((flight_1: Flights, flight_2: Flights) => {
+        if (+flight_1.flight.price.total.amount > +flight_2.flight.price.total.amount) return -1
+        if (+flight_1.flight.price.total.amount < +flight_2.flight.price.total.amount) return 1
         return 0
-      }))
+      })
     }
     if (sorting === TYPE_SORTING.TIME) {
-      handleFilterFlights(flightsFilterActual.sort((flight_1: Flights, flight_2: Flights) => {
-        if (flight_1.flight.legs.reduce((accumulator: number, leg: any) => accumulator + leg.duration, [0]) > +flight_2.flight.legs.reduce((accumulator: number, leg: any) => accumulator + leg.duration, [0])) return -1
-        if (flight_1.flight.legs.reduce((accumulator: number, leg: any) => accumulator + leg.duration, [0]) > +flight_2.flight.legs.reduce((accumulator: number, leg: any) => accumulator + leg.duration, [0])) return 1
+      return flights.sort((flight_1: Flights, flight_2: Flights) => {
+        if (+flight_1.flight.legs.reduce((accumulator: number, leg) => accumulator + leg.duration, 0) > +flight_2.flight.legs.reduce((accumulator: number, leg) => accumulator + leg.duration, 0)) return -1
+        if (+flight_1.flight.legs.reduce((accumulator: number, leg) => accumulator + leg.duration, 0) > +flight_2.flight.legs.reduce((accumulator: number, leg) => accumulator + leg.duration, 0)) return 1
         return 0
-      }))
-    }
-  }, [handleFilterFlights, sorting])
+      })
+    } return flights
+  }
 
   React.useEffect(() => {
+    let filterArray: Flights[] = flights
+
     if (filter === TYPE_FILTER.STOP) {
-      handleFilterFlights(flights.filter((flight: any) => flight.flight.legs.find((leg: any) => leg.segments.find((segment: any) => segment.stops === 1))))
+      filterArray = filterArray.filter((flight) => flight.flight.legs.some((leg) => leg.segments.some((segment) => segment.stops === 1)))
     }
     if (filter === TYPE_FILTER.NO_STOP) {
-      handleFilterFlights(flights.filter((flight: any) => flight.flight.legs.find((leg: any) => leg.segments.find((segment: any) => segment.stops === 0))))
+      filterArray = filterArray.filter((flight) => flight.flight.legs.some((leg) => leg.segments.some((segment) => segment.stops === 0)))
+      handleFilterFlights(flights.filter((flight) => flight.flight.legs.some((leg) => leg.segments.some((segment) => segment.stops === 0))))
     }
-  }, [filter, flights, handleFilterFlights])
 
-  React.useEffect(() => {
-    console.log(price)
-  }, [price])
+    if (!isNaN(+price.start) && !isNaN(+price.end) && (+price.start < +price.end)) {
+      filterArray = filterArray.filter(flight => {
+        const totalPrice = +flight.flight.price.total.amount
+        return totalPrice >= price.start && totalPrice <= price.end
+      })
+    }
 
-  React.useEffect(() => {
-    handleFilterFlights(flights.filter((flight: Flights) => flight.flight.carrier.caption === company))
-  }, [company])
+
+
+    if (company) filterArray = filterArray.filter((flight: Flights) => flight.flight.carrier.caption === company)
+
+    if (sorting) filterArray = getSortValue(filterArray)
+
+    handleFilterFlights(filterArray)
+  }, [filter, price, flights, company, sorting, handleFilterFlights])
 
   return (
     <section className={cn(styles.Container)}>
@@ -86,9 +120,10 @@ export const FilterComponent: React.FC<Props> = (props) => {
           labelsSorting.map(label => (
             <label className={styles.SortingLabel} key={label.value}>
               <input
+                checked={label.value === sorting}
                 type="radio"
                 name='sorting'
-                onInput={() => setSorting(label.value)}
+                onChange={() => setSorting(label.value)}
                 value={label.value} />
               {` - ${label.title}`}
             </label>
@@ -102,9 +137,10 @@ export const FilterComponent: React.FC<Props> = (props) => {
           labelsFilter.map(label => (
             <label className={styles.SortingLabel} key={label.value}>
               <input
+                checked={label.value === filter}
                 type="radio"
-                name='sorting'
-                onInput={() => setFilter(label.value)}
+                name='filters'
+                onChange={() => setFilter(label.value)}
                 value={label.value} />
               {` - ${label.title}`}
             </label>
@@ -117,7 +153,6 @@ export const FilterComponent: React.FC<Props> = (props) => {
         <label className={styles.PriceLabel}>
           От
           <input type="string" value={price.start} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            console.log(event.target.value.slice(1))
             const actualValue = event.target.value.startsWith('0') ? +event.target.value.slice(1) : +event.target.value
             setPrice(prevValue => ({
               ...prevValue,
@@ -145,8 +180,10 @@ export const FilterComponent: React.FC<Props> = (props) => {
             <label className={styles.SortingLabel} key={label.value}>
               <input
                 type="radio"
-                name='sorting'
-                onInput={() => setCompany(label.value)}
+                disabled={label.disabled}
+                checked={label.value === company}
+                name='company'
+                onChange={() => setCompany(label.value)}
                 value={label.value} />
               {` - ${label.title}`}
             </label>

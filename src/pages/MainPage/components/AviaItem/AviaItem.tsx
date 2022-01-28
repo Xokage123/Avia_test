@@ -3,24 +3,21 @@ import moment from 'moment'
 import 'moment/locale/ru';
 import cn from 'classnames'
 
+import { Flights} from '../../../../data/types'
+
 import styles from './aviaitem.module.scss';
 
 import ClockIcon from '../../../../assets/image/clock.png'
 
-interface IProps {
-  flight: any
-  token: string
-}
-
 moment.locale('ru')
 
-export const AviaItemComponent: React.FC<IProps> = (props) => {
+export const AviaItemComponent: React.FC<Flights> = (props) => {
   const { flight, token } = props
 
   return (
     <>
       {
-        flight.legs.map((leg: any) => (
+        flight.legs.map((leg) => (
           (
             <li className={styles.Item} key={token}>
               <section className={styles.ItemHeader}>
@@ -31,14 +28,14 @@ export const AviaItemComponent: React.FC<IProps> = (props) => {
                 </div>
               </section>
               {
-                leg.segments.map((segment: any, index: number) => (
+                leg.segments.map((segment, index: number) => (
                   <section className={styles.ItemFlight}>
                     <div className={styles.ItemFlight_Airoport}>
-                      <span>{`${segment.departureCity.caption}, ${segment.departureAirport.caption}`} <mark className='blue'>({segment.departureAirport.uid})</mark></span>
+                      <span>{`${segment.departureCity ? segment.departureCity.caption : ''}, ${segment.departureAirport.caption}`} <mark className='blue'>({segment.departureAirport.uid})</mark></span>
                       <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.5 8.25L17.25 12M17.25 12L13.5 15.75M17.25 12H6.75" stroke="#3A52EE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
-                      <span>{`${segment.arrivalCity.caption}, ${segment.arrivalAirport.caption}`} <mark className='blue'>({segment.arrivalAirport.uid})</mark></span>
+                      <span>{`${segment.arrivalCity ? segment.arrivalCity.caption : ''}, ${segment.arrivalAirport ?segment.arrivalAirport.caption : ''}`} <mark className='blue'>({segment.arrivalAirport.uid})</mark></span>
                     </div>
                     <div className={styles.ItemFlight_Date}>
                       <div className={styles.ItemFlight_DateTime}>
@@ -48,7 +45,7 @@ export const AviaItemComponent: React.FC<IProps> = (props) => {
                       <div className={styles.ItemFlight_DateAll}>
                         <img src={ClockIcon} alt="clock" />
                         {`${Math.round(segment.travelDuration / 60) - 1} ч ${(segment.travelDuration % 60) > 10 ? segment.travelDuration % 60 : `0${segment.travelDuration % 60}`} мин`}
-                        </div>
+                      </div>
                       <div className={styles.ItemFlight_DateTime}>
                         <span className='blue'>{moment(segment.arrivalDate).format('DD MMM dd')}</span>
                         <span className={styles.ItemFlight_DateClock}>{moment(segment.arrivalDate).format('hh:mm')}</span>
@@ -65,7 +62,7 @@ export const AviaItemComponent: React.FC<IProps> = (props) => {
                     }
                     <span className={styles.ItemFlight_Company}>Рейс выполняет: {segment.airline.airlineCode} {segment.airline.caption}</span>
 
-                    {leg.segments[index+1] ? <div className={styles.Line} /> : null}
+                    {leg.segments[index + 1] ? <div className={styles.Line} /> : null}
                   </section>
                 ))
               }
