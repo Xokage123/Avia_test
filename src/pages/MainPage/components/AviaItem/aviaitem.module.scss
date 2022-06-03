@@ -1,4 +1,8 @@
 .Item {
+  &Image {
+    width: 100px;
+    height: 50px;
+  }
   &Header {
     display: flex;
     justify-content: space-between;

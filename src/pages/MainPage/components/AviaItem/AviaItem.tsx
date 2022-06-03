@@ -1,12 +1,13 @@
 import React from 'react';
-import moment from 'moment'
+import moment from 'moment';
 import 'moment/locale/ru';
 
-import { Flights} from '../../../../data/types'
+import { Flights} from '../../../../data/types';
+
+import ClockIcon from '../../../../assets/image/clock.png';
+import PlaneIcon from '../../../../assets/image/plane.png';
 
 import styles from './aviaitem.module.scss';
-
-import ClockIcon from '../../../../assets/image/clock.png'
 
 moment.locale('ru')
 
@@ -20,7 +21,9 @@ export const AviaItemComponent: React.FC<Flights> = (props) => {
           (
             <li className={styles.Item} key={token}>
               <section className={styles.ItemHeader}>
-                <div className={styles.ItemHeader_Left}>Логотип компании</div>
+                <div className={styles.ItemHeader_Left}>
+                  <img className={styles.ItemImage} src={PlaneIcon} alt="plane" />
+                </div>
                 <div className={styles.ItemHeader_Right}>
                   <span className={styles.ItemHeader_RightPrice}>{`${flight.price.total.amount} ${flight.price.total.currency}`}</span>
                   <span>Стоимость для одного взрослого пассажира</span>
